@@ -1,4 +1,4 @@
-"""Shared configuration dataclasses for the RL simulation and training loops."""
+"""云边协同强化学习仿真与训练的配置数据类。"""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -8,7 +8,7 @@ from typing import Dict, Iterable, List, Optional
 
 @dataclass
 class EVConfig:
-    """Configuration for EV energy consumption and charge request rules."""
+    """EV能耗参数与触发充电请求的阈值设置。"""
 
     energy_kwh_per_km: float = 0.18
     soc_threshold: float = 0.2
@@ -18,7 +18,7 @@ class EVConfig:
 
 @dataclass
 class EdgeConfig:
-    """Hyperparameters for region-level environments and agents."""
+    """区域侧环境与策略的超参数配置。"""
 
     region_radius_km: float = 2.0
     max_queue_size: int = 50
@@ -33,9 +33,9 @@ class EdgeConfig:
 
 @dataclass
 class CloudConfig:
-    """Configuration for cloud-level training and coordination."""
+    """云端训练与跨区域协调的配置。"""
 
-    allocation_interval: int = 12  # in edge timesteps (e.g., hourly if timestep is 5 minutes)
+    allocation_interval: int = 12  # 边缘环境时间步数（5分钟步长对应约1小时）
     max_transfer_per_interval: int = 5
     ppo_clip: float = 0.2
     entropy_coeff: float = 0.01
@@ -47,7 +47,7 @@ class CloudConfig:
 
 @dataclass
 class SimulationConfig:
-    """Paths and knobs for orchestrating a multi-region simulation."""
+    """多区域仿真的路径设置与控制参数。"""
 
     trajectory_root: Path = Path("dataset/traj_data")
     region_ids: Optional[Iterable[str]] = None
@@ -61,7 +61,7 @@ class SimulationConfig:
 
 @dataclass
 class TrainingSchedule:
-    """High-level training schedule for cloud-edge coordination."""
+    """云边协同训练的时间表与频率设定。"""
 
     cloud_update_every: int = 50
     edge_sync_every: int = 500
@@ -73,7 +73,7 @@ class TrainingSchedule:
 
 @dataclass
 class RegionSummary:
-    """Statistics uploaded from edge to cloud after a rollout window."""
+    """区域在窗口期结束后上报云端的统计数据。"""
 
     region_id: str
     success_rate: float

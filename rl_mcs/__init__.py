@@ -1,4 +1,4 @@
-"""Cloud-edge collaborative RL scaffolding for mobile charging scheduling."""
+"""移动充电调度的云边协同强化学习脚手架。"""
 
 __all__ = [
     "config",

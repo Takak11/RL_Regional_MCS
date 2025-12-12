@@ -1,4 +1,4 @@
-"""Executable scaffolding to wire EV simulator, edge envs, and cloud trainer."""
+"""串联EV仿真器、边缘环境与云端训练器的可执行脚手架。"""
 from __future__ import annotations
 
 import logging
@@ -55,7 +55,7 @@ def main() -> None:
     def locate(lon: float, lat: float):
         return locate_region(regions, lon, lat)
 
-    # stream requests into edge environments before training
+    # 在训练前将历史请求流入各区域环境
     for request in ev_sim.stream_requests(trajectories, locate):
         region_env = trainer.edge_envs.get(request.region_id)
         if region_env:

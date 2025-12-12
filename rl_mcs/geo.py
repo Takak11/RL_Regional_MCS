@@ -1,4 +1,4 @@
-"""Utilities for geographic calculations and Voronoi region lookup."""
+"""地理计算与Voronoi区域查找的工具函数。"""
 from __future__ import annotations
 
 import json
@@ -12,17 +12,17 @@ from shapely.geometry import Point, shape
 
 @dataclass
 class RegionPolygon:
-    """Lightweight Voronoi region representation."""
+    """轻量化的Voronoi区域表示。"""
 
     region_id: str
-    polygon: object  # shapely geometry
+    polygon: object  # shapely几何对象
 
     def contains(self, lon: float, lat: float) -> bool:
         return self.polygon.contains(Point(lon, lat))
 
 
 def haversine_km(lon1: float, lat1: float, lon2: float, lat2: float) -> float:
-    """Compute great-circle distance in kilometers between two points."""
+    """计算两点间的大圆距离（公里）。"""
 
     lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
     dlon = lon2 - lon1
@@ -33,7 +33,7 @@ def haversine_km(lon1: float, lat1: float, lon2: float, lat2: float) -> float:
 
 
 def load_voronoi_regions(path: Path) -> List[RegionPolygon]:
-    """Load Voronoi polygons from a GeoJSON file."""
+    """从GeoJSON文件加载Voronoi多边形。"""
 
     regions: List[RegionPolygon] = []
     with path.open("r", encoding="utf-8") as f:
@@ -46,7 +46,7 @@ def load_voronoi_regions(path: Path) -> List[RegionPolygon]:
 
 
 def locate_region(regions: List[RegionPolygon], lon: float, lat: float) -> Optional[str]:
-    """Return the ID of the region that contains the point, if any."""
+    """返回包含指定点的区域ID，若无则为None。"""
 
     point = Point(lon, lat)
     for region in regions:
@@ -56,7 +56,7 @@ def locate_region(regions: List[RegionPolygon], lon: float, lat: float) -> Optio
 
 
 def nearest_points_within(points: List[Tuple[float, float]], lon: float, lat: float, radius_km: float) -> List[Tuple[int, float]]:
-    """Return indices and distances of candidate points within a radius."""
+    """返回半径范围内候选点的索引与距离。"""
 
     candidates: List[Tuple[int, float]] = []
     for idx, (lon2, lat2) in enumerate(points):

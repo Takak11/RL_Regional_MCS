@@ -1,4 +1,4 @@
-"""Training orchestrator for cloud-edge collaboration."""
+"""云边协同训练的调度器。"""
 from __future__ import annotations
 
 import logging
@@ -26,7 +26,7 @@ class RolloutBuffer:
 
 
 class Trainer:
-    """Coordinate edge and cloud rollouts using the provided policies."""
+    """利用给定策略协调边缘与云端的采样与更新。"""
 
     def __init__(self, sim_config: SimulationConfig, schedule: TrainingSchedule):
         self.sim_config = sim_config

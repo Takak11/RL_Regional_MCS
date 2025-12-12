@@ -1,4 +1,4 @@
-"""Cloud-level environment coordinating region allocations."""
+"""云端环境，用于跨区域协调MCS配额。"""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -13,7 +13,7 @@ class CloudObservation:
 
 
 class CloudEnv:
-    """Simplified environment for allocating MCS counts across regions."""
+    """跨区域分配MCS数量的简化环境。"""
 
     def __init__(self, config: CloudConfig, region_ids: List[str]):
         self.config = config
@@ -25,7 +25,7 @@ class CloudEnv:
         return CloudObservation(summaries=summaries)
 
     def step(self, action: Dict[str, int], summaries: List[RegionSummary]) -> Tuple[CloudObservation, float, bool, Dict]:
-        """Apply allocation deltas and compute a reward based on summaries."""
+        """根据区域统计调整配额，并计算对应奖励。"""
 
         reward = 0.0
         info: Dict[str, float] = {}
@@ -35,7 +35,7 @@ class CloudEnv:
             reward -= transfer_cost
             self.allocations[rid] = new_alloc
 
-        # reward high success rate and low wait
+        # 对成功率高、等待低的区域给予更高奖励
         for summary in summaries:
             reward += summary.success_rate * 2.0
             reward -= summary.average_wait * 0.05
@@ -47,7 +47,7 @@ class CloudEnv:
         return obs, reward, done, info
 
     def greedy_action(self, summaries: List[RegionSummary]) -> Dict[str, int]:
-        """Simple baseline: shift resources from low-utilization to high-wait regions."""
+        """简单基线：将资源从低等待区域迁移至高等待区域。"""
 
         if not summaries:
             return {}

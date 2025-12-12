@@ -1,4 +1,4 @@
-"""Region-level environment for MCS dispatch decisions."""
+"""区域侧MCS调度决策的简化环境。"""
 from __future__ import annotations
 
 import random
@@ -18,12 +18,11 @@ class QueueItem:
 
 @dataclass
 class MCSState:
-    """Mobile charging station representation."""
+    """移动充电车的静态状态，不考虑电量消耗。"""
 
     lon: float
     lat: float
     available: bool = True
-    battery_kwh: float = 80.0
 
 
 @dataclass
@@ -39,7 +38,7 @@ class EdgeObservation:
 
 
 class EdgeEnv:
-    """Simplified queueing environment for a single region."""
+    """单区域的排队与调度简化环境。"""
 
     def __init__(self, region_id: str, config: EdgeConfig, dispatch_points: List[Tuple[float, float]]):
         self.region_id = region_id
@@ -54,7 +53,7 @@ class EdgeEnv:
         waits = [item.wait_time for item in self.queue] or [0]
         mean_wait = sum(waits) / len(waits)
         max_wait = max(waits)
-        time_bin = (self.time_step // 12) % 24  # coarse 2-hr bin if 5-min step
+        time_bin = (self.time_step // 12) % 24  # 以5分钟步长统计为2小时区间
         arrival_rate = self.arrivals_last_window / max(1, self.time_step)
         return EdgeObservation(
             region_id=self.region_id,
@@ -74,16 +73,16 @@ class EdgeEnv:
         self.arrivals_last_window += 1
 
     def step(self, action_indices: Optional[List[int]]) -> Tuple[EdgeObservation, float, bool, Dict]:
-        """Advance the queue by assigning requests to dispatch points.
+        """将待处理请求分配到调度点并推进时间步。
 
         Args:
-            action_indices: indices into candidate_points for each queued request.
+            action_indices: 针对每个排队请求给出的候选调度点索引。
         """
 
         reward = 0.0
         info: Dict[str, float] = {}
 
-        # update waiting times
+        # 更新等待时间
         for item in self.queue:
             item.wait_time += 1
 
@@ -94,16 +93,16 @@ class EdgeEnv:
                 point = self.dispatch_points[idx]
                 nearest = nearest_points_within([point], item.request.lon, item.request.lat, self.config.region_radius_km)
                 if nearest:
-                    # pretend immediate service if available MCS exists
+                    # 若区域内有可用MCS则视为即时完成服务
                     if self._assign_mcs(point):
                         reward += 1.0 - 0.01 * item.wait_time
                         item.wait_time = 0
                     else:
-                        reward -= 0.1  # penalty for no MCS
+                        reward -= 0.1  # 区域无可用MCS
                 else:
-                    reward -= 0.2  # too far
+                    reward -= 0.2  # 距离过远
 
-        # Remove served items
+        # 移除已完成的请求
         self.queue = [item for item in self.queue if item.wait_time > 0]
         self.time_step += 1
 
@@ -112,16 +111,12 @@ class EdgeEnv:
         return obs, reward, done, info
 
     def _assign_mcs(self, target_point: Tuple[float, float]) -> bool:
+        """选择一辆可用MCS前往目标调度点，不考虑电量衰减。"""
+
         for mcs in self.mcs_pool:
             if mcs.available:
-                mcs.available = False
-                # simplistic recharge cooldown
-                mcs.battery_kwh -= 5
-                if mcs.battery_kwh < 10:
-                    mcs.available = False
-                else:
-                    mcs.available = True
                 mcs.lon, mcs.lat = target_point
+                mcs.available = True
                 return True
         return False
 

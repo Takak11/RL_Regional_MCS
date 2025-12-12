@@ -1,4 +1,4 @@
-"""Dataset utilities for trajectories and dispatch points."""
+"""轨迹数据与调度点数据的读取与辅助函数。"""
 from __future__ import annotations
 
 import csv
@@ -25,7 +25,7 @@ class Trajectory:
 
 
 def load_dispatch_points(path: Path) -> List[Dict[str, float]]:
-    """Load dispatch points and FCS coordinates from a CSV file."""
+    """从CSV文件读取调度点与固定充电桩坐标。"""
 
     with path.open("r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
@@ -40,7 +40,7 @@ def load_dispatch_points(path: Path) -> List[Dict[str, float]]:
 
 
 def load_vehicle_trajectories(root: Path, region_ids: Iterable[str] | None = None) -> List[Trajectory]:
-    """Load vehicle trajectories from CSV files under the given root directory."""
+    """从指定目录读取车辆轨迹CSV文件。"""
 
     trajectories: List[Trajectory] = []
     files = sorted(root.glob("*.csv"))
@@ -58,7 +58,7 @@ def load_vehicle_trajectories(root: Path, region_ids: Iterable[str] | None = Non
 
 
 def estimate_energy_kwh(points: Sequence[TrajectoryPoint], energy_per_km: float) -> float:
-    """Approximate energy needed to travel the polyline connecting points."""
+    """估算经过给定轨迹段需要的能耗。"""
 
     total = 0.0
     for idx in range(1, len(points)):
@@ -68,7 +68,7 @@ def estimate_energy_kwh(points: Sequence[TrajectoryPoint], energy_per_km: float)
 
 
 def iterate_trips(points: Sequence[TrajectoryPoint]) -> Iterator[tuple[TrajectoryPoint, TrajectoryPoint]]:
-    """Yield consecutive point pairs representing 5-minute movements."""
+    """逐段返回相邻点对，表示每个5分钟移动。"""
 
     for idx in range(1, len(points)):
         yield points[idx - 1], points[idx]

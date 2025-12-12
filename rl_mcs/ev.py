@@ -1,4 +1,4 @@
-"""EV state machine and request generation."""
+"""电动车状态机与充电请求生成逻辑。"""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -12,7 +12,7 @@ from .geo import haversine_km
 @dataclass
 class EVState:
     vehicle_id: str
-    soc: float  # normalized 0-1
+    soc: float  # 0-1归一化的SOC
     lon: float
     lat: float
     region_id: Optional[str]
@@ -35,7 +35,7 @@ class ChargeRequest:
 
 
 class EVSimulator:
-    """Drive vehicles along their trajectories and yield charge requests."""
+    """沿轨迹推进车辆位置并产出充电请求。"""
 
     def __init__(self, ev_config: EVConfig):
         self.ev_config = ev_config
